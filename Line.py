@@ -12,7 +12,7 @@ class ProcessedLine:
 
     def get_line(self):
         temp_list = []
-        temp_list.append(str(self.date_time))
+        temp_list.append(self.date_time)
         temp_list.append(str(self.process_id))
         temp_list.append(str(self.thread_id))
         temp_list.append(str(self.debug_level))

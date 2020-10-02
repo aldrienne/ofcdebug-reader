@@ -37,7 +37,7 @@ def convert_raw_line(line):
     debug_level = re.debug_level.group()
 
     # Step 6 Extract Process_name
-    re_process = re.search('\[[a-zA-Z]*(.exe|.EXE)\]',line)
+    re_process = re.search('\[[a-zA-Z0-9]*(.exe|.EXE)\]',line)
     process_name = re_process.group()
 
     # Step 6 Extract Sub Process_name
@@ -71,6 +71,8 @@ def convert_raw_line(line):
         result=result
     )
 
+    # print(type(processed_line.date_time))
+
 
     return processed_line.get_line()
 
@@ -95,16 +97,32 @@ if __name__ == '__main__':
             print(i)
 
     # Create an xlsx file
-    workbook = xlsxwriter.Workbook('ofcdebug1.xlsx')
+    workbook = xlsxwriter.Workbook('ofcdebug.xlsx')
     worksheet = workbook.add_worksheet()
+    header_data = [
+        "date/time",
+        "pid",
+        "tid",
+        "debug_level",
+        "process_name",
+        "sub_process_name",
+        "action",
+        "result",
+    ]
+    header_format = workbook.add_format({'bold': True,
+                                         'bottom': 2,
+                                         'bg_color': '#F9DA04'})
 
-    row = 0
+    for col_num, data in enumerate(header_data):
+        worksheet.write(0, col_num, data, header_format)
+
+    row = 1
     col = 0
 
-    print(processed_lines[0])
-
+    date_format = workbook.add_format({'num_format': 'mm/dd/yy hh:mm:ss'})
+    time_format = workbook.add_format({'num_format': 'hh:mm:ss'})
     for date_time, process_id, thread_id, debug_level, process_name, sub_process_name, action, result in (processed_lines):
-        worksheet.write(row, col, date_time)
+        worksheet.write_datetime(row, col, date_time, date_format)
         worksheet.write(row, col + 1, process_id)
         worksheet.write(row, col + 2, thread_id)
         worksheet.write(row, col + 3, debug_level)
@@ -113,5 +131,11 @@ if __name__ == '__main__':
         worksheet.write(row, col + 6, action)
         worksheet.write(row, col + 7, result)
         row += 1
+
+    duration = processed_lines[-1][0] - processed_lines[0][0]
+    print(type(duration))
+    worksheet.write(row + 2, col, "Duration:")
+    worksheet.write(row + 3, col, duration,time_format)
+
 
     workbook.close()
