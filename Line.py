@@ -21,8 +21,3 @@ class ProcessedLine:
         temp_list.append(str(self.action))
         temp_list.append(str(self.result))
         return temp_list
-
-
-    # def __str__(self):
-    #     """Return a string representation of the object"""
-    #     return str(self.date_time) + '[' + self.process_id + ':' + self.thread_id + ']' + ' ' + self.debug_level + ' ' + self.sub_process_name + self.proces_name + self.action + self.result

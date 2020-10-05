@@ -10,6 +10,7 @@ import xlsxwriter
 raw_lines = []
 processed_lines = []
 
+
 def convert_raw_line(line):
     """
     Helper function to extract values from ofcdebug
@@ -23,43 +24,41 @@ def convert_raw_line(line):
     date_time_raw = date_raw[8:10] + '/' + date_raw[5:7] + '/' + date_raw[2:4] + ' ' + time_raw
     date = datetime.strptime(date_time_raw, '%d/%m/%y %H:%M:%S')
 
-
     # Extracting process and thread
-    re_process_subprocess = re.search('\[.{4} : .{4}]',line)
-    process_thread = re_process_subprocess.group().replace('[','').replace(']','').split(':')
+    re_process_subprocess = re.search('\\[.{4} : .{4}]', line)
+    process_thread = re_process_subprocess.group().replace('[', '').replace(']', '').split(':')
     # Step 3 Extract Process_id
     process_id = process_thread[0]
     # Step 4 Extract Thread_id
     thread_id = process_thread[1]
 
     # Step 5 Debug Level
-    re.debug_level = re.search('\([A-Z]\)',line)
+    re.debug_level = re.search('\\([A-Z]\\)', line)
     debug_level = re.debug_level.group()
 
     # Step 6 Extract Process_name
-    re_process = re.search('\[[a-zA-Z0-9]*(.exe|.EXE)\]',line)
+    re_process = re.search('\\[[a-zA-Z0-9]*(.exe|.EXE)\\]', line)
     process_name = re_process.group()
 
     # Step 6 Extract Sub Process_name
-    re_subprocess = re.search('\[[^:]*?\]',line)
+    re_subprocess = re.search('\\[[^:]*?\\]', line)
     sub_process_name = re_subprocess.group()
 
-    #Step 7 Extract Action
+    # Step 7 Extract Action
     if '.exe]' in line:
         parent_action = line.split('.exe]')
-    elif '.EXE]'in line:
+    elif '.EXE]' in line:
         parent_action = line.split('.EXE]')
 
     sub_parent = parent_action[1].split(' - ')
     action = sub_parent[0]
 
-    #Step 8 Extract result
+    #S tep 8 Extract result
     result = ''
-    for i in range(1,len(sub_parent)):
+    for i in range(1, len(sub_parent)):
         result += sub_parent[i]
 
-
-    #Step 9 Create a class
+    # Step 9 Create a class
     processed_line = ProcessedLine(
         date_time=date,
         process_id=process_id,
@@ -70,9 +69,6 @@ def convert_raw_line(line):
         action=action,
         result=result
     )
-
-    # print(type(processed_line.date_time))
-
 
     return processed_line.get_line()
 
@@ -135,7 +131,5 @@ if __name__ == '__main__':
     duration = processed_lines[-1][0] - processed_lines[0][0]
     print(type(duration))
     worksheet.write(row + 2, col, "Duration:")
-    worksheet.write(row + 3, col, duration,time_format)
-
-
+    worksheet.write(row + 3, col, duration, time_format)
     workbook.close()
